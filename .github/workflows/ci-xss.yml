@@ -40,7 +40,8 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov pytest-flask flake8 bandit
+        pip install pytest pytest-cov flake8 bandit
+        pip install --no-deps pytest-flask
 
     - name: Linter avec Flake8
       run: |
@@ -83,6 +84,9 @@ jobs:
     name: Scan XSS avec Trivy
     runs-on: ubuntu-latest
     needs: tests
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
     - name: Checkout du code
@@ -124,7 +128,7 @@ jobs:
         severity: 'CRITICAL,HIGH'
 
     - name: Upload du rapport SARIF à GitHub Security
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       if: always()
       with:
         sarif_file: 'trivy-results-xss.sarif'
