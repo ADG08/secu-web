@@ -1,7 +1,7 @@
 ## Challenge 8 – Command Injection
 
 - **Nom :** Command Injection
-- **URL :** https://www.root-me.org/fr/Challenges/Web-Serveur/Command-injection
+- **URL :** https://www.root-me.org/fr/Challenges/Web-Serveur/Injection-de-commande-Contournement-de-filtre
 
 ### Étapes de découverte
 

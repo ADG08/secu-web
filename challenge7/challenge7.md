@@ -1,7 +1,7 @@
 ## Challenge 7 – SQL Injection
 
 - **Nom :** SQL Injection
-- **URL :** https://www.root-me.org/fr/Challenges/Web-Serveur/SQL-injection
+- **URL :** https://www.root-me.org/fr/Challenges/Web-Serveur/SQL-injection-Error
 
 ### Étapes de découverte
 
