@@ -2,7 +2,7 @@ name: CI XSS - Tests et Sécurité
 
 on:
   push:
-    branches: [ main, develop, feat/* ]
+    branches: [ main, feat/* ]
     paths:
       - 'xss-comments/**'
       - '.github/workflows/ci-xss.yml'

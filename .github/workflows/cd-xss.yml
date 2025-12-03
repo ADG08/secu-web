@@ -2,7 +2,7 @@ name: CD XSS - Build et Déploiement Docker
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feat/* ]
     paths:
       - 'xss-comments/**'
       - '.github/workflows/cd-xss.yml'
