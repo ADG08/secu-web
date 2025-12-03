@@ -1,142 +1,60 @@
-name: CD XSS - Build et Déploiement Docker
+name: CD XSS - Build et Deploy
 
 on:
   push:
-    branches: [ main, feat/* ]
+    branches: [ main ]
     paths:
       - 'xss-comments/**'
       - '.github/workflows/cd-xss.yml'
-    tags:
-      - 'xss-v*.*.*'
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/xss-comments
-  REGISTRY: docker.io
+  IMAGE: ${{ secrets.DOCKER_USERNAME }}/xss-comments
 
 jobs:
-  build-and-push:
-    name: Build XSS et Push vers Docker Hub
+  deploy:
+    name: Build & Push Docker
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout du code
       uses: actions/checkout@v4
 
-    - name: Configuration Docker Buildx
+    - name: Setup Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Connexion à Docker Hub
+    - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Extraction des métadonnées
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.DOCKER_IMAGE }}
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
+    - name: Build image for scan
+      run: docker build -t ${{ env.IMAGE }}:scan ./xss-comments
 
-    - name: Build de l'image Docker (sans push)
-      uses: docker/build-push-action@v5
-      with:
-        context: ./xss-comments
-        push: false
-        load: true
-        tags: ${{ env.DOCKER_IMAGE }}:scan
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-    - name: Scan Trivy de l'image avant push
+    - name: Trivy scan before push
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: '${{ env.DOCKER_IMAGE }}:scan'
+        image-ref: '${{ env.IMAGE }}:scan'
         format: 'table'
-        exit-code: '0'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
+        exit-code: '0'
 
-    - name: Scan Trivy - Rapport détaillé
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: '${{ env.DOCKER_IMAGE }}:scan'
-        format: 'json'
-        output: 'trivy-image-report-xss.json'
-        vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH,MEDIUM,LOW'
-
-    - name: Build et Push vers Docker Hub
+    - name: Build and Push to Docker Hub
       uses: docker/build-push-action@v5
       with:
         context: ./xss-comments
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          ${{ env.IMAGE }}:latest
+          ${{ env.IMAGE }}:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        platforms: linux/amd64,linux/arm64
 
-    - name: Génération du SBOM (Software Bill of Materials)
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: '${{ env.DOCKER_IMAGE }}:latest'
-        format: 'cyclonedx'
-        output: 'sbom-xss.json'
-      continue-on-error: true
-
-    - name: Sauvegarde des rapports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: docker-security-reports-xss
-        path: |
-          trivy-image-report-xss.json
-          sbom-xss.json
-
-    - name: Image Docker Info
+    - name: Verify deployment
       run: |
-        echo "✅ Image Docker XSS publiée avec succès!"
-        echo "📦 Tags disponibles:"
-        echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n'
-        echo ""
-        echo "🐳 Commande pour tester l'image:"
-        echo "docker pull ${{ env.DOCKER_IMAGE }}:latest"
-        echo "docker run -p 8080:8080 ${{ env.DOCKER_IMAGE }}:latest"
-
-  verify-deployment:
-    name: Vérification du déploiement XSS
-    runs-on: ubuntu-latest
-    needs: build-and-push
-
-    steps:
-    - name: Pull de l'image depuis Docker Hub
-      run: |
-        docker pull ${{ env.DOCKER_IMAGE }}:latest
-
-    - name: Test de l'image Docker
-      run: |
-        # Lancer le conteneur en arrière-plan
-        docker run -d -p 8080:8080 --name test-xss-container ${{ env.DOCKER_IMAGE }}:latest
-
-        # Attendre que l'application démarre
+        docker pull ${{ env.IMAGE }}:latest
+        docker run -d -p 8080:8080 --name test-xss ${{ env.IMAGE }}:latest
         sleep 10
-
-        # Tester le endpoint health
-        curl -f http://localhost:8080/health || exit 1
-
-        echo "✅ L'image Docker XSS fonctionne correctement!"
-
-    - name: Nettoyage
-      if: always()
-      run: |
-        docker stop test-xss-container || true
-        docker rm test-xss-container || true
+        curl -f http://localhost:8080/health
+        docker stop test-xss
