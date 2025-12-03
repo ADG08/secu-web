@@ -49,8 +49,6 @@ Requête mise dans l'input commentaire :
 
 - Il est recommandé d’exiger des requêtes POST avec un Content-Type complexe (ex : multipart/form-data) afin d’empêcher les navigateurs d’envoyer automatiquement des requêtes CSRF simples.
 https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#disallowing-simple-content-types
-- Envoyer un jeton CSRF à la fois dans un cookie et dans un champ POST permet de vérifier que la requête provient bien du navigateur légitime, sans avoir besoin de stocker le token côté serveur.
-https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#alternative-using-a-double-submit-cookie-pattern
 - Le jeton CSRF doit être unique par session utilisateur, non prédictible, et stocké côté serveur dans la session.
 https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern
 - Les protections côté client (ex : SameSite cookies, vérification JavaScript du Origin) renforcent la sécurité mais ne remplacent jamais une vérification CSRF côté serveur mais elles doivent être utilisées uniquement comme mesures complémentaires.

@@ -33,7 +33,7 @@ Accept-Encoding: gzip, deflate, br
 Priority: i
 ```
 
-![img.png](images/challenge1-null-byte-bypass.png)
+![img.png](images/challenge1/challenge1-null-byte-bypass.png)
 
 
 ### Les recommandations
