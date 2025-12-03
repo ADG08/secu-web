@@ -39,9 +39,9 @@ jobs:
     - name: Installation des dépendances
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov flake8 bandit
-        pip install --no-deps pytest-flask
+        pip install pytest pytest-cov flake8 bandit pytest-flask
+        pip install -r requirements.txt || true
+        echo "Note: Flask peut être upgradé pour les tests, l'image Docker reste vulnérable"
 
     - name: Linter avec Flake8
       run: |
@@ -97,22 +97,13 @@ jobs:
       run: |
         docker build -t xss-comments:${{ github.sha }} .
 
-    - name: Scan Trivy - Vulnérabilités
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: 'xss-comments:${{ github.sha }}'
-        format: 'table'
-        exit-code: '1'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH,MEDIUM'
-
     - name: Scan Trivy - Rapport JSON
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: 'xss-comments:${{ github.sha }}'
         format: 'json'
         output: 'trivy-report-xss.json'
+        exit-code: '0'
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH,MEDIUM'
@@ -123,9 +114,20 @@ jobs:
         image-ref: 'xss-comments:${{ github.sha }}'
         format: 'sarif'
         output: 'trivy-results-xss.sarif'
+        exit-code: '0'
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
+
+    - name: Scan Trivy - Vulnérabilités (avec échec si trouvées)
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'xss-comments:${{ github.sha }}'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH,MEDIUM'
 
     - name: Upload du rapport SARIF à GitHub Security
       uses: github/codeql-action/upload-sarif@v4
