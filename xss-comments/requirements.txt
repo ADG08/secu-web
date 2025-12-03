@@ -1,0 +1,7 @@
+# Versions VOLONTAIREMENT VULNÉRABLES pour démonstration Trivy
+# NE PAS UTILISER EN PRODUCTION!
+
+# Flask 2.2.5 a des CVE connus et fonctionne bien
+Flask==2.2.5
+Werkzeug==2.2.2
+Jinja2==3.0.3
