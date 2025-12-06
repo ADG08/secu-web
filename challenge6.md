@@ -16,7 +16,7 @@
    ```
 
    Récupération du token JWT dans la réponse.
-   ![img.png](getAccessToken.png)
+   ![img.png](/images/challenge6/getAccessToken.png)
 
 3. Appel de l'endpoint `/admin` avec le token JWT récupéré :
 
@@ -27,7 +27,7 @@
    ```
 
    Récupération du message "Token is revoked" dans la réponse.
-   ![img.png](tokenRevoked.png)
+   ![img.png](/images/challenge6/tokenRevoked.png)
 
 4. Contournement de la revocation du token, ajout d'un = à la fin du token 
 
@@ -40,7 +40,7 @@
    ```
 
     Récupération du flag dans la réponse.
-    ![img.png](flag.png)
+    ![img.png](/images/challenge6/flag.png)
 
 ### Les recommandations
 
